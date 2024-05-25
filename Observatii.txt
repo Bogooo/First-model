@@ -1,0 +1,80 @@
+Setul de date:
+    Datele sunt impartite in 6 clase, cate 1250 de poze per clasa: https://www.kaggle.com/datasets/sarunpakkkkkk/handwritten-math-symbols-dataset
+    Acestea au fost preluate intr-un format ideal, au fost create special pentru a antrena un model, astfel nu
+    au fost necesare multe preprocesari, doar verificari legate de dimensiuni. Modelul clasifica simboluri matematice, iar
+    pentru fiecare simbol sunt 1250 de imagini. Acesta a fost inpartit in 3 seturi: train 60%, validation 20%, si test 20%.
+    Am impartit datele in batch-uri de dimensiune 16.
+
+Am testat/antrenat mai multe modele, pentru fiecare am calculat acuratetea si train/validation loss.
+
+
+PretrainedModel:
+    am folosit un model preantrenat, si anume "efficientnet_b0" din pythorch,un model la care iam sters ultimul layer,
+    si lam inlocuit cu un linear function pentru a clasifica pentru numarul meu de clase, acesta fiind preantrenat pentru
+    1280 de clase, modelul acesta foloseste softmax
+    Loss-function : cross entropy
+    optimizer: adam
+    epoci: 50 - 50-60s/epoca -1h total
+    Acuratetea modelului este mare: 99.39%
+    Observatii: modelul se antreneaza mai greu, insa are o acuratete foarte mare.
+
+BaseModel: 2 convolutii, 4 layere:
+    foloseste 2 convolutii cu kernele 5*5, base model are 6 canale output (3 RGB -> 6), iar al doilea face
+    16 canale output. Layerele preiau rezultatele convolutiilor si genereaza features, care se diminiueaza pe fiecare layer (144,72,36)
+    iar la final raman 6 (pt fiecare clasa), pt activare folosesc Relu
+    Loss-function : cross entropy
+    optimizer: adam
+    epoci: 50 - 15-17 s/epoca - 15 min total
+    Acuratetea modelului este mare: 98.01%
+    Observatii: modelul se antreneaza usor, este simplu structurat si cu o performanta buna.
+
+Sigmoid: ca si SimpleModel, dar cu sigmoid in loc de Relu
+    Loss-function : cross entropy
+    optimizer: adam
+    epoci: 50 - 15-17 s/epoca - 15 min total
+    Acuratetea modelului este mare: 16.35%
+    Observatii: se antreneaza usor, insa performanta scade considerabil. Cred ca diferenta o face faptul ca Relu creste linear,
+                iar sigmoidul de la o valoare rotunjeste la 1, respectiv -1, si se pierde injectivitatea, grupand mai multe valori
+                la acelas rezultat. (Pe scurt, relu cred ca are o distributie  mai buna).
+
+Softmax: ca si SimpleModel, dar cu softmax in loc de Relu
+    Loss-function : cross entropy
+    optimizer: adam
+    epoci: 50 - 15-17 s/epoca - 15 min total
+    Acuratetea modelului este mare: 16.01%
+    Observatii: Cam aceas problema ca la relu, exponentialul de la un punct se plafoneaza si nu ofera o distributie foarte buna pentru
+                clasificatorul modelat de mine. In practica este foarte util, dar nu se modeleaza bine pe structura creata de mine.
+
+SGD: ca base model, dar in loc de adam am sgd
+    Loss-function : cross entropy
+    optimizer: sgd
+    epoci: 50 - 15-17 s/epoca - 15 min total
+    Acuratetea modelului este mare: 94.91%
+    Observatii: SGD, impreuna cu Adam sunt cele mai populare, pentru clasificare, diferenta consta in faptul ca SGD are un
+                learning rate constant, in timp ce la Adam este variabil, modelul are o performanta buna, insa in cazul de fata
+                este mai slab decat modelul cu adam. (nu stiu de ce, pentru clasificare de imagini am inteles ca SGD ar fi mai portrivit).
+
+MultiMarginLoss: ca base model, dar in loc de cross entropy cu MultiMarginLoss
+    Loss-function : MultiMarginLoss
+    optimizer: adam
+    epoci: 50 - 15-17 s/epoca - 15 min total
+    Acuratetea modelului este mare: 96.13%
+    Observatii: multimargin evita saturatia si exemplele negative (eronate, exceptii, etc...), insa avand un set de date ideal nu
+                profitam de acesta, performanta este buna, insa nu este mai bun decat entropy loss.
+
+Batch: ca base model, dar cu batch size diferit, de 2
+    Loss-function : cross entropy
+    optimizer: adam
+    epoci: 50 - 25-30 s/epoca - 27 min total
+    Acuratetea modelului este mare: 99.32%
+    Observatii: Cu batch size mai mic, modelul preia mai in amamnunt informatiile, ceea ce face ca trainingul sa fie mai lung,
+                insa creste acuratetea putin.
+
+LR_Scheduler: ca base model, dar cu LR_scheduler
+    Loss-function : cross entropy
+    optimizer: adam
+    epoci: 50 - 20 s/epoca - 20 min total
+    Acuratetea modelului este mare: 98.91%
+    Observatii: aplic pe adam un scheduler Acest cheduler
+                optimizeaza actualizarile parametrilor dupa fiecare epoca.
+
