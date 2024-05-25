@@ -1,7 +1,0 @@
-II. Clasificator pentru imagini/text (imagini CNN, text RNN) referabil CNNs pentru ca pot ajuta  - pytorch sau tensorflow daca deja il stiti, daca nu, prefer pytorch sa va pot ajuta
-
-    //nu stiu la ce se refera// sa se experimenteze cu learning rate-ul (daca folositi pytorch exista clasa de scheduler,
-                puteti face chestii mai fancy care sunt super usefull in practica) 0.5 normal 0.5 LR Scheduler
-
-
-1pct oficiu
